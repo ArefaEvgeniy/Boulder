@@ -1,3 +1,7 @@
+"""
+There are constants for all files of this project in the file constants.py
+"""
+
 import pygame
 
 

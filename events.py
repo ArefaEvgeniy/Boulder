@@ -1,10 +1,16 @@
+"""
+In file events.py processed keyboard and mouse events from user.
+"""
+
 import pygame
 
 import constants as const
 
 
-class Events:
-
+class Events():
+    """
+    Processed keyboard and mouse events from user.
+    """
 
     def __init__(self, man):
         self.play = True
@@ -14,6 +20,11 @@ class Events:
 
 
     def work(self):
+        """
+        Processed input events and assigning the necessary values to
+        the corresponding variables
+        :return: is game continue or no
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.play = False
@@ -31,7 +42,7 @@ class Events:
                 self.man.way_move = const.WAY_MOVE.get(event.key)
 
             if event.type == pygame.KEYUP:
-                if event.key in (const.WAY_MOVE.keys()):
+                if event.key in const.WAY_MOVE.keys():
                     self.man.way_move = None
                 if event.key == pygame.K_SPACE:
                     self.man.without_move = False

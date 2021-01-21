@@ -1,3 +1,7 @@
+"""
+There are information (images and sound) of all sprites in the file sprites.py
+"""
+
 import constants as const
 
 

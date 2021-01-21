@@ -1,3 +1,16 @@
+"""
+File main.py use to start the game Boulder.
+In this game you control a character who needs to collect a given amount of
+diamonds in order to open to the next level. The character can move on empty
+cells and on grass. If he steps on the grass, then the grass in this cell
+disappears and in the future this cell will be empty. A stone or diamond
+falls one cell down if this cell is empty. A character can move a stone if
+there is an empty cell behind this stone. The character must avoid colliding
+with monsters or falling on the head of a stone. In this case, the character
+will die and the game will start over. The monster can be killed by throwing
+a stone on its head. The monster can only move along empty cells.
+"""
+
 import pygame
 
 import constants as const
@@ -9,6 +22,10 @@ from input_output import InputOutput
 
 
 def main():
+    """
+    Main function top level to start a game, restart game, start next level
+    and show information of menu.
+    """
 
     play = True
     level = 1
@@ -23,12 +40,12 @@ def main():
         pygame.init()
         pygame.mixer.init()
 
-        sc = pygame.display.set_mode(
+        screen = pygame.display.set_mode(
             (const.WIN_WIDTH * const.SIZE + const.ADMIN_PANEL * const.SIZE,
              const.WIN_HEIGHT * const.SIZE)
         )
 
-        menu = Menu(sc, level)
+        menu = Menu(screen, level)
         analyzer = Analyzer(levels.LEVELS.get(level), score)
 
         clock = pygame.time.Clock()
@@ -37,9 +54,9 @@ def main():
         while play and not events.restart and not analyzer.restart:
             play = events.work()
 
-            sc.fill(const.WHITE)
+            screen.fill(const.WHITE)
 
-            if analyzer.run(sc, events.pause):
+            if analyzer.run(screen, events.pause):
                 score = analyzer.man.score
                 level += 1
 

@@ -1,3 +1,8 @@
+"""
+There are maps and score for exit to next level for all levels in the file
+levels.py
+"""
+
 import constants as const
 
 

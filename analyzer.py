@@ -1,3 +1,7 @@
+"""
+Code in file analyzer.py analyzes behavior any sprites and behavior of game.
+"""
+
 import pygame
 import time
 from random import randint
@@ -7,8 +11,10 @@ from model import StaticModel, DynamicModel, ManModel, ZombieModel, \
     ExplosionModel
 
 
-class Analyzer:
-
+class Analyzer():
+    """
+    Analyze behavior any sprites and behavior of game.
+    """
     SOUNDS = {}
 
     def __init__(self, level, score):
@@ -30,12 +36,16 @@ class Analyzer:
 
 
     def init_sprites(self, score):
+        """
+        Create sprites on start of the level according map level.
+        :param score: score of a character
+        """
         self.explosion = ExplosionModel(0, 0)
 
-        for index_y, y in enumerate(self.level):
-            for index_x, x in enumerate(y):
+        for index_y, index_x_and_name_sprite in enumerate(self.level):
+            for index_x, name_sprite in enumerate(index_x_and_name_sprite):
                 sprite = None
-                name = const.NAME_BLOCK.get(x)
+                name = const.NAME_BLOCK.get(name_sprite)
                 value_x = index_x * const.SIZE
                 value_y = index_y * const.SIZE
                 if name == const.DIAMOND_STONE:
@@ -65,6 +75,12 @@ class Analyzer:
 
     @staticmethod
     def check_coordinates(new_x, new_y):
+        """
+        Check new coordinates. They should not be outside of screen
+        :param new_x: new x for check
+        :param new_y: new y for check
+        :return: True or False
+        """
         res = False
         if 0 <= new_x < const.WIN_WIDTH and 0 <= new_y < const.WIN_HEIGHT:
             res = True
@@ -72,6 +88,16 @@ class Analyzer:
 
 
     def get_way(self, coordinates, area, now_way):
+        """
+        Definition new way for monster.
+        The way of movement is randomly selected from all possible ones.
+        The previous way is chosen only when there are no other possible
+        paths.
+        :param coordinates: current coordinates
+        :param area: map of sprites on the level
+        :param now_way: previous coordinates
+        :return: new way
+        """
         res = None
         new_x, new_y = None, None
         candidates = []
@@ -121,6 +147,14 @@ class Analyzer:
 
 
     def analyze_zombies(self):
+        """
+        Analyze behavior of monster:
+            - select all sprites of monsters;
+            - select new way for all monsters;
+            - move all monsters;
+            - kill a character if one of monsters moving to coordinates of
+              character.
+        """
         sprites_zombie = [
             i[0] for i in self.area.items()
             if i[1] and i[1].name == const.ZOMBIE
@@ -149,6 +183,12 @@ class Analyzer:
 
 
     def kill_zombie(self, x, y, area):
+        """
+        Kill monster of current area.
+        :param x: current x.
+        :param y: current y.
+        :param area: current area.
+        """
         if self.area.get((x, y)).leave:
             sprite = self.explosion
             self.explosion_sprite.add(sprite)
@@ -176,6 +216,12 @@ class Analyzer:
 
 
     def analyze_dynamic_sprites(self):
+        """
+        Analyze behavior of dynamic sprite:
+            - select all sprites of stone or diamond;
+            - one of one action (stay, fall, crash, roll down,
+              kill man or kill zombie).
+        """
         sprites_is_fall = [
             i[0] for i in self.area.items()
             if i[1] and i[1].name in (const.STONE, const.DIAMOND)
@@ -199,7 +245,7 @@ class Analyzer:
                 self.area[(now_x, new_y)] = elem
                 elem.fall = True
 
-            # crash element and brick
+            # crash element against a brick
             elif (sprite and sprite.name == const.BRICK
                   and elem.fall and elem.fall_count > 1):
                 elem.sound_kill.play()
@@ -211,11 +257,10 @@ class Analyzer:
             # roll down (left: -1, right: 1)
             elif (now_x, new_y) in sprites_is_fall:
                 for direction in (-1, 1):
-                    if ((now_x, new_y) in sprites_is_fall
-                        and 0 <= now_x + direction < const.WIN_WIDTH
+                    if 0 <= now_x + direction < const.WIN_WIDTH \
                         and not (self.area.get((now_x + direction, new_y - 1))
                                  or self.area.get((now_x + direction, new_y))
-                                 or elem.roll_down or elem.fall or elem.push)):
+                                 or elem.roll_down or elem.fall or elem.push):
                         self.area.pop(coordinates)
                         self.area[(now_x + direction, new_y)] = elem
                         elem.roll_down = direction
@@ -239,6 +284,9 @@ class Analyzer:
 
 
     def analyze_man(self):
+        """
+        Analyze behavior of a character.
+        """
         if self.man.way_move and not self.man.frames:
             add_x = const.MOVE[self.man.way_move][0]
             add_y = const.MOVE[self.man.way_move][1]
@@ -315,7 +363,13 @@ class Analyzer:
                 self.area[(new_x, new_y)] = self.man
 
 
-    def run(self, sc, pause):
+    def run(self, screen, pause):
+        """
+        Main method of class. It run all methods by rotation.
+        :param screen: variable of screen
+        :param pause: variable of pause
+        :return: True if compete or restart level otherwise False.
+        """
         if self.score_exit <= 0:
             self.exit.go_exit = True
 
@@ -336,10 +390,10 @@ class Analyzer:
 
         self.counter += 1
 
-        self.static_sprites.draw(sc)
-        self.dynamic_sprites.draw(sc)
-        self.explosion_sprite.draw(sc)
-        sc.blit(self.man.image, self.man.rect)
+        self.static_sprites.draw(screen)
+        self.dynamic_sprites.draw(screen)
+        self.explosion_sprite.draw(screen)
+        screen.blit(self.man.image, self.man.rect)
 
         if not self.man.leave or self.level_complete:
             self.restart = True
